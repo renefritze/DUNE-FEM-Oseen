@@ -193,14 +193,15 @@ namespace Integrators {
 							for ( int j = 0; (j < info.numVelocityBaseFunctionsElement ); ++j ) {
 								VelocityRangeType v_j( 0.0 );
 								info.velocity_basefunction_set_element.evaluate( j, xInside, v_j );
-								VelocityRangeType v_j_neigh( 0.0 );
-								info.velocity_basefunction_set_neighbour.evaluate( j, xOutside, v_j_neigh );
+//								VelocityRangeType v_j_neigh( 0.0 );
+//								info.velocity_basefunction_set_neighbour.evaluate( j, xOutside, v_j_neigh );
 								// \int_{dK} \beta * n * u_h * v ds
 
-								const double v_i_jump = ( (v_i * outerNormal) );// + (v_j_neigh * outerNormal_neigh) );
+                                const double v_j_jump = ( (v_j * outerNormal) );// + (v_j_neigh * outerNormal_neigh) );
 //								double ret  = (beta_eval * u_h) * v_j_jump ;
 //								double ret = (beta_times_normal ) * ( (v_i * v_j)*0.5 + v_i_jump );
-                                const double ret = 0.5 * beta_times_normal * ( v_j * v_i );
+                                v_j *= 0.5;
+                                const double ret = beta_times_normal * ( v_j * v_i + v_j_jump );
 
 
 								const double O_i_j = elementVolume
@@ -235,11 +236,12 @@ namespace Integrators {
                                 VelocityRangeType v_j_neigh( 0.0 );
                                 info.velocity_basefunction_set_neighbour.evaluate( i, xOutside, v_j_neigh );
                                 // \int_{dK} \beta * n * u_h * v ds
-                                const double v_i_jump = ( (v_j * outerNormal_neigh));// + (v_j_neigh * outerNormal_neigh) );
+                                const double v_j_jump = ( (v_j * outerNormal_neigh));// + (v_j_neigh * outerNormal_neigh) );
 //								double ret = (beta_eval_neigh * u_h) * v_j_jump;
 //                                double ret = (beta_eval*outerNormal ) * ( (v_i * v_j)*0.5 + v_i_jump );
 //								ret += (u_h * outerNormal_neigh) * v_j_jump * c_star;
-                                const double ret = 0.5 * beta_times_normal * ( v_j * v_i );
+                                v_j *= 0.5;
+                                const double ret = beta_times_normal * ( v_j * v_i  + v_j_jump);
 
                                 const double O_i_j = elementVolume
                                         * integrationWeight
