@@ -3,6 +3,7 @@
 
 #include <dune/stokes/integrators/base.hh>
 #include <dune/stuff/matrix.hh>
+#include <dune/stuff/printing.hh>
 
 namespace Dune {
 namespace Stokes {
@@ -41,7 +42,7 @@ namespace Integrators {
 			template < class InfoContainerVolumeType >
 			void applyVolume( const InfoContainerVolumeType& info )
 			{
-				applyVolume_alt2( info );
+                applyVolume_alt2( info );
 			}
 
 			template < class InfoContainerVolumeType >
@@ -50,6 +51,7 @@ namespace Integrators {
 				LocalMatrixProxyType localOmatrixElement( matrix_pointer_, info.entity, info.entity, info.eps );
 				const typename Traits::DiscreteVelocityFunctionType::LocalFunctionType& beta_lf =
 						beta_.localFunction( info.entity );
+                std::cerr << "local " ;
 				for ( int i = 0; (i < info.numVelocityBaseFunctionsElement ) ; ++i ) {
 					for ( int j = 0; j < info.numVelocityBaseFunctionsElement; ++j ) {
 						double O_i_j = 0.0;
@@ -71,12 +73,12 @@ namespace Integrators {
 
 							VelocityJacobianRangeType v_i_jacobian;
 							info.velocity_basefunction_set_element.jacobian( i, x, v_i_jacobian );
-							VelocityJacobianRangeType v_j_jacobian;
-							info.velocity_basefunction_set_element.jacobian( j, x, v_j_jacobian );
+//                            VelocityJacobianRangeType v_i_jacobian;
+//                            info.velocity_basefunction_set_element.jacobian( j, x, v_i_jacobian );
 
 							VelocityJacobianRangeType v_i_tensor_beta
 									= Stuff::dyadicProduct<VelocityJacobianRangeType,VelocityRangeType>( v_i, beta_eval );
-							const double ret = Stuff::colonProduct( v_i_tensor_beta, v_j_jacobian );
+                            const double ret = Stuff::colonProduct( v_i_tensor_beta, v_i_jacobian );
 
 							O_i_j -= elementVolume
 								* integrationWeight
@@ -84,19 +86,20 @@ namespace Integrators {
 								* ret;
 						}
 						localOmatrixElement.add( i, j, O_i_j );
+                        std:: cerr << O_i_j << " ";
 					}
 				}
+                std::cerr << std::endl;
 			}
 
 			template < class InfoContainerVolumeType >
 			void applyVolume_alt2( const InfoContainerVolumeType& info )
 			{
-//				return;
 				typename MatrixPointerType::element_type::LocalMatrixType
 						localOmatrixElement = matrix_pointer_->localMatrix( info.entity, info.entity );
 				const typename Traits::DiscreteVelocityFunctionType::LocalFunctionType& beta_lf =
 						beta_.localFunction( info.entity );
-				for ( int i = 0; (i < info.numVelocityBaseFunctionsElement ) ; ++i ) {
+                for ( int i = 0; (i < info.numVelocityBaseFunctionsElement ) ; ++i ) {
 					for ( int j = 0; j < info.numVelocityBaseFunctionsElement; ++j ) {
 						double O_i_j = 0.0;
 						// sum over all quadrature points
@@ -115,37 +118,31 @@ namespace Integrators {
 							VelocityRangeType beta_eval;
 							beta_lf.evaluate( x, beta_eval );
 
-							VelocityJacobianRangeType v_j_jacobian;
-							info.velocity_basefunction_set_element.jacobian( j, x, v_j_jacobian );
+                            VelocityJacobianRangeType v_i_jacobian;
+                            info.velocity_basefunction_set_element.jacobian( i, x, v_i_jacobian );
 							VelocityJacobianRangeType beta_jacobian;
 							beta_lf.jacobian( x, beta_jacobian );
 							VelocityRangeType divergence_of_v_i_tensor_beta;
 
-							VelocityRangeType divergence_of_v_j_tensor_beta;
+                            divergence_of_v_i_tensor_beta[0] =
+                                beta_eval[0] * v_i_jacobian[0][0] + v_i[0] * beta_jacobian[0][0]
+                                   + beta_eval[0] * v_i_jacobian[1][1] + v_i[1] * beta_jacobian[0][1];
 
-							divergence_of_v_j_tensor_beta[0] =
-								beta_eval[0] * v_j_jacobian[0][0] + v_j[0] * beta_jacobian[0][0]
-								   + beta_eval[0] * v_j_jacobian[1][1] + v_j[1] * beta_jacobian[0][1];
-
-							divergence_of_v_j_tensor_beta[1] =
-								beta_eval[1] * v_j_jacobian[0][0] + v_j[0] * beta_jacobian[1][0]
-								   + beta_eval[1] * v_j_jacobian[1][1] + v_j[1] * beta_jacobian[1][1];
+                            divergence_of_v_i_tensor_beta[1] =
+                                beta_eval[1] * v_i_jacobian[0][0] + v_i[0] * beta_jacobian[1][0]
+                                   + beta_eval[1] * v_i_jacobian[1][1] + v_i[1] * beta_jacobian[1][1];
 
 
 							const double u_h_times_divergence_of_beta_v_i_tensor_beta =
-									v_j * divergence_of_v_j_tensor_beta;
+                                    v_j * divergence_of_v_i_tensor_beta;
 
 							O_i_j -= elementVolume
 									* integrationWeight
 									* info.convection_scaling
 									* u_h_times_divergence_of_beta_v_i_tensor_beta;
 						}
-						if ( fabs( O_i_j ) < info.eps ) {
-							O_i_j = 0.0;
-						}
-						else {
-							localOmatrixElement.add( i, j, O_i_j );
-						}
+                        std::cerr << "local " << O_i_j << " ";
+                        localOmatrixElement.add( i, j, O_i_j );
 					}
 				}
 			}
@@ -182,7 +179,7 @@ namespace Integrators {
 					const VelocityRangeType outerNormal_neigh = info.intersection.unitOuterNormal( xLocal_neigh );
 					const double beta_times_normal = beta_eval * outerNormal;
 //					const double c_star = std::abs(beta_times_normal) * 0.5;
-					if ( beta_times_normal > 0  )
+//					if ( beta_times_normal > 0  )
 					{
 						const double elementVolume = info.intersectionGeometry.integrationElement( xLocal );
 						// get the quadrature weight
@@ -202,8 +199,9 @@ namespace Integrators {
 
 								const double v_i_jump = ( (v_i * outerNormal) );// + (v_j_neigh * outerNormal_neigh) );
 //								double ret  = (beta_eval * u_h) * v_j_jump ;
-								double ret = (beta_times_normal ) * ( (v_i * v_j)*0.5 + v_i_jump );
-//								ret += (u_h * outerNormal) * v_j_jump * c_star;
+//								double ret = (beta_times_normal ) * ( (v_i * v_j)*0.5 + v_i_jump );
+                                const double ret = 0.5 * beta_times_normal * ( v_j * v_i );
+
 
 								const double O_i_j = elementVolume
 										* integrationWeight
@@ -213,44 +211,44 @@ namespace Integrators {
 							} // done sum over all quadrature points
 						} // done computing Y's element surface integral
 					}
-//					continue;
 
 						// compute O's neighbour surface integral
-					else
-					{
+//                    continue;//else
+                    {
 
-						const double elementVolume = info.intersectionGeometry.integrationElement( xLocal_neigh );
-						// get the quadrature weight
-						const double integrationWeight = info.faceQuadratureNeighbour.weight( quad );
-						// \int_{dK} flux_value : ( v_j \ctimes n ) ds
-						for ( int i = 0; i < info.numVelocityBaseFunctionsNeighbour; ++i )
-						{
-							// sum over all quadrature points
-							VelocityRangeType v_i( 0.0 );
-							info.velocity_basefunction_set_neighbour.evaluate( i, xOutside, v_i );
+                        const double elementVolume = info.intersectionGeometry.integrationElement( xLocal_neigh );
+                        // get the quadrature weight
+                        const double integrationWeight = info.faceQuadratureNeighbour.weight( quad );
+                        // \int_{dK} flux_value : ( v_j \ctimes n ) ds
+                        for ( int i = 0; i < info.numVelocityBaseFunctionsNeighbour; ++i )
+                        {
+                            // sum over all quadrature points
+                            VelocityRangeType v_i( 0.0 );
+                            info.velocity_basefunction_set_neighbour.evaluate( i, xOutside, v_i );
 
 //							VelocityRangeType u_h = v_i;
-							for ( int j = 0; (j < info.numVelocityBaseFunctionsElement ); ++j )
-							{
-								// compute O's element surface integral
-								VelocityRangeType v_j( 0.0 );
-								info.velocity_basefunction_set_element.evaluate( j, xInside, v_j );
-								VelocityRangeType v_j_neigh( 0.0 );
-								info.velocity_basefunction_set_neighbour.evaluate( i, xOutside, v_j_neigh );
-								// \int_{dK} \beta * n * u_h * v ds
-								const double v_i_jump = ( (v_i * outerNormal_neigh));// + (v_j_neigh * outerNormal_neigh) );
+                            for ( int j = 0; (j < info.numVelocityBaseFunctionsElement ); ++j )
+                            {
+                                // compute O's element surface integral
+                                VelocityRangeType v_j( 0.0 );
+                                info.velocity_basefunction_set_element.evaluate( j, xInside, v_j );
+                                VelocityRangeType v_j_neigh( 0.0 );
+                                info.velocity_basefunction_set_neighbour.evaluate( i, xOutside, v_j_neigh );
+                                // \int_{dK} \beta * n * u_h * v ds
+                                const double v_i_jump = ( (v_j * outerNormal_neigh));// + (v_j_neigh * outerNormal_neigh) );
 //								double ret = (beta_eval_neigh * u_h) * v_j_jump;
-								double ret = (beta_eval*outerNormal ) * ( (v_i * v_j)*0.5 - v_i_jump );
+//                                double ret = (beta_eval*outerNormal ) * ( (v_i * v_j)*0.5 + v_i_jump );
 //								ret += (u_h * outerNormal_neigh) * v_j_jump * c_star;
+                                const double ret = 0.5 * beta_times_normal * ( v_j * v_i );
 
-								const double O_i_j = elementVolume
-										* integrationWeight
-										* info.convection_scaling
-										* ret;
-								localOmatrixNeighbour.add( i, j, O_i_j );
-							} // done sum over all quadrature points
-						}
-					} // done computing Y's neighbour surface integral
+                                const double O_i_j = elementVolume
+                                        * integrationWeight
+                                        * info.convection_scaling
+                                        * ret;
+                                localOmatrixNeighbour.add( i, j, O_i_j );
+                            } // done sum over all quadrature points
+                        }
+                    }
 				} // done computing Y's surface integrals
 			}
 
@@ -289,7 +287,7 @@ namespace Integrators {
 							VelocityRangeType v_j( 0.0 );
 							info.velocity_basefunction_set_element.evaluate( j, x, v_j );
 
-							const double ret  = (beta_times_normal) * (v_i * v_j);
+                            const double ret  = (beta_times_normal) * (v_j * v_i);
 							//inner edge (self)
 							const double O_i_j = elementVolume
 								* integrationWeight
