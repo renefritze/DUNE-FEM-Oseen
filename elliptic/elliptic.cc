@@ -138,36 +138,34 @@
 #include "model.hh"
 #include "elementintegratortraits.hh"
 
-
 // Select the polynomial order of the calculation
 #ifdef POLORDER
-enum { polynomialOrder = POLORDER };
+enum {
+  polynomialOrder = POLORDER
+};
 #else
-enum { polynomialOrder = 1 };
+enum {
+  polynomialOrder = 1
+};
 #endif
 
 #ifndef ELLIPTIC
-    #ifndef POISSON
-        #define POISSON
-    #endif
+#ifndef POISSON
+#define POISSON
+#endif
 #endif
 
 using namespace Dune;
 
-typedef LeafGridPart< GridType >
-    GridPartType;
+typedef LeafGridPart<GridType> GridPartType;
 
-typedef FunctionSpace< double, double, dimworld, 3 >
-    FunctionSpaceType;
+typedef FunctionSpace<double, double, dimworld, 3> FunctionSpaceType;
 
-typedef LagrangeDiscreteFunctionSpace < FunctionSpaceType, GridPartType, polynomialOrder >
-    DiscreteFunctionSpaceType;
+typedef LagrangeDiscreteFunctionSpace<FunctionSpaceType, GridPartType, polynomialOrder> DiscreteFunctionSpaceType;
 
-typedef AdaptiveDiscreteFunction< DiscreteFunctionSpaceType >
-    DiscreteFunctionType;
+typedef AdaptiveDiscreteFunction<DiscreteFunctionSpaceType> DiscreteFunctionType;
 
-typedef DefaultMatrixElementIntegratorTraits< DiscreteFunctionType, 100 >
-    ElementIntegratorTraitsType;
+typedef DefaultMatrixElementIntegratorTraits<DiscreteFunctionType, 100> ElementIntegratorTraitsType;
 
 /*
 // definition of traits class, which already defines various
@@ -179,32 +177,22 @@ typedef EllipticElementIntegratorTraits< GridType, polynomialOrder >
 typedef ElementIntegratorTraitsType :: FunctionSpaceType FunctionSpaceType;
 */
 #ifdef AORTA
-    typedef AortaModel< FunctionSpaceType >
-        EllipticModelType;
-    typedef Elliptic3dExactSolution< FunctionSpaceType >
-        ExactSolutionType;
+typedef AortaModel<FunctionSpaceType> EllipticModelType;
+typedef Elliptic3dExactSolution<FunctionSpaceType> ExactSolutionType;
 #elif defined(DARCY)
-    typedef DarcyModel< FunctionSpaceType >
-        EllipticModelType;
-    typedef Elliptic2dExactSolution< FunctionSpaceType >
-        ExactSolutionType;
+typedef DarcyModel<FunctionSpaceType> EllipticModelType;
+typedef Elliptic2dExactSolution<FunctionSpaceType> ExactSolutionType;
 #elif defined(POISSON)
-    typedef PoissonModel< FunctionSpaceType >
-        EllipticModelType;
-    typedef PoissonExactSolution< FunctionSpaceType >
-        ExactSolutionType;
+typedef PoissonModel<FunctionSpaceType> EllipticModelType;
+typedef PoissonExactSolution<FunctionSpaceType> ExactSolutionType;
 #elif defined(ELLIPTIC)
-    #if PDIM==2
-        typedef Elliptic2dModel< FunctionSpaceType >
-            EllipticModelType;
-        typedef Elliptic2dExactSolution< FunctionSpaceType >
-            ExactSolutionType;
-    #elif PDIM==3
-        typedef Elliptic3dModel< FunctionSpaceType >
-            EllipticModelType;
-        typedef Elliptic3dExactSolution< FunctionSpaceType >
-            ExactSolutionType;
-    #endif
+#if PDIM == 2
+typedef Elliptic2dModel<FunctionSpaceType> EllipticModelType;
+typedef Elliptic2dExactSolution<FunctionSpaceType> ExactSolutionType;
+#elif PDIM == 3
+typedef Elliptic3dModel<FunctionSpaceType> EllipticModelType;
+typedef Elliptic3dExactSolution<FunctionSpaceType> ExactSolutionType;
+#endif
 #endif // if ELLIPTIC
 
 /*
@@ -239,48 +227,36 @@ typedef ElementIntegratorTraitsType::DiscreteFunctionType DiscreteFunctionType;
 // typedef LaplaceFEOp< DiscreteFunctionType, Tensor, 1 > LaplaceOperatorType;
 
 #include <dune/fem/io/file/vtkio.hh>
-#define VTK_WRITE(z)    vtkWriter_.addVertexData(z); \
-                        vtkWriter_.write(( "data/"#z ) ); \
-                        vtkWriter_.clear();
-typedef Dune::VTKIO<GridPartType>
-    VTKWriterType;
-
+#define VTK_WRITE(z)                                                                                                   \
+  vtkWriter_.addVertexData(z);                                                                                         \
+  vtkWriter_.write(("data/" #z));                                                                                      \
+  vtkWriter_.clear();
+typedef Dune::VTKIO<GridPartType> VTKWriterType;
 
 //! definition of the problem specific ElementRhsIntegrator
 class MyElementRhsIntegrator
-    : public DefaultElementRhsIntegrator<   ElementIntegratorTraitsType,
-                                            EllipticModelType,
-                                            MyElementRhsIntegrator >
-{
-    private:
-        typedef MyElementRhsIntegrator
-            ThisType;
+    : public DefaultElementRhsIntegrator<ElementIntegratorTraitsType, EllipticModelType, MyElementRhsIntegrator> {
+private:
+  typedef MyElementRhsIntegrator ThisType;
 
-        typedef DefaultElementRhsIntegrator<    ElementIntegratorTraitsType,
-                                                EllipticModelType,
-                                                ThisType >
-            BaseType;
+  typedef DefaultElementRhsIntegrator<ElementIntegratorTraitsType, EllipticModelType, ThisType> BaseType;
 
-    public:
-        //! constructor with model must be implemented as a forward to Base class
-        MyElementRhsIntegrator(EllipticModelType& model, const DiscreteFunctionSpaceType &dfSpace, int verbose=0)
-                : BaseType( model, dfSpace, verbose )
-        {
-        }
+public:
+  //! constructor with model must be implemented as a forward to Base class
+  MyElementRhsIntegrator(EllipticModelType& model, const DiscreteFunctionSpaceType& dfSpace, int verbose = 0)
+    : BaseType(model, dfSpace, verbose) {}
 
-        //! access function, which is the essence and can be used to implement
-        //! arbitrary operators
-        template <class EntityType, class ElementRhsType>
-        void addElementRhs(EntityType &entity,
-                           ElementRhsType &elRhs,
-                           double coef=1.0) // const
-        {
-            // arbitrary combination of existing or new methods
-            addSourceElementRhs(entity,elRhs,coef);
-            addNeumannElementRhs(entity,elRhs,coef);
-            addRobinElementRhs(entity,elRhs,coef);
-
-        };
+  //! access function, which is the essence and can be used to implement
+  //! arbitrary operators
+  template <class EntityType, class ElementRhsType>
+  void addElementRhs(EntityType& entity, ElementRhsType& elRhs, double coef = 1.0) // const
+  {
+    // arbitrary combination of existing or new methods
+    addSourceElementRhs(entity, elRhs, coef);
+    addNeumannElementRhs(entity, elRhs, coef);
+    addRobinElementRhs(entity, elRhs, coef);
+  }
+  ;
 };
 
 typedef MyElementRhsIntegrator ElementRhsIntegratorType;
@@ -290,199 +266,182 @@ typedef RhsAssembler<ElementRhsIntegratorType> RhsAssemblerType;
 
 #include "simpleelementintegrator.h"
 //! definition of element-matrix Integrator type providing elementwise matrices
-typedef SimpleElementMatrixIntegrator< ElementIntegratorTraitsType,
-EllipticModelType >
-ElementMatrixIntegratorType;
+typedef SimpleElementMatrixIntegrator<ElementIntegratorTraitsType, EllipticModelType> ElementMatrixIntegratorType;
 
 //! definition of the global matrix type to be used in the FEOp
 typedef SparseRowMatrix<double> SystemMatrixType;
 
 //! definition of FEM operator, see feop.hh
-typedef FEOp<SystemMatrixType,ElementMatrixIntegratorType>
-EllipticOperatorType;
+typedef FEOp<SystemMatrixType, ElementMatrixIntegratorType> EllipticOperatorType;
 
 //! define the inverse operator we are using to solve the system
 // see dune/fem/inverseoperators.hh
-typedef CGInverseOp < DiscreteFunctionType, EllipticOperatorType >    InverseOperatorType;
+typedef CGInverseOp<DiscreteFunctionType, EllipticOperatorType> InverseOperatorType;
 // or ../../solvers/oemsolver/oemsolvers.hh
-//typedef OEMCGOp<DiscreteFunctionType,EllipticOperatorType> InverseOperatorType;
-//typedef OEMBICGSTABOp<DiscreteFunctionType,EllipticOperatorType> InverseOperatorType;
-//typedef OEMBICGSQOp<DiscreteFunctionType,EllipticOperatorType> InverseOperatorType;
+// typedef OEMCGOp<DiscreteFunctionType,EllipticOperatorType> InverseOperatorType;
+// typedef OEMBICGSTABOp<DiscreteFunctionType,EllipticOperatorType> InverseOperatorType;
+// typedef OEMBICGSQOp<DiscreteFunctionType,EllipticOperatorType> InverseOperatorType;
 
 // GMRES seems to miss some libraries...
-//typedef OEMGMRESOp<DiscreteFunctionType,EllipticOperatorType> InverseOperatorType;
+// typedef OEMGMRESOp<DiscreteFunctionType,EllipticOperatorType> InverseOperatorType;
 
 //! define the type of mapping which is used by inverseOperator
-//typedef Mapping<double ,double,DiscreteFunctionType,DiscreteFunctionType > MappingType;
+// typedef Mapping<double ,double,DiscreteFunctionType,DiscreteFunctionType > MappingType;
 
 #include <dune/stuff/logging.hh>
 #include <dune/stuff/parametercontainer.hh>
 
+double algorithm(const std::string& filename, int maxlevel);
 
-double algorithm( const std :: string &filename, int maxlevel );
+int main(int argc, char** argv) {
+  // initialize MPI
+  // too new
+  // MPIManager :: initialize( argc, argv );
 
-int main ( int argc, char **argv )
-{
-    // initialize MPI
-    // too new
-    //MPIManager :: initialize( argc, argv );
+  Dune::MPIHelper& mpihelper = Dune::MPIHelper::instance(argc, argv);
 
-    Dune::MPIHelper& mpihelper = Dune::MPIHelper::instance(argc, argv);
-
-    try
-    {
-        if ( !(  Parameters().ReadCommandLine( argc, argv ) ) )
-        {
-            return 1;
-        }
-//    if ( !(  Parameters().SetUp() ) ) {
-//        std::cerr << "\nUsage: " << argv[0] << " parameterfile \n" << "\t --- OR --- \n";
-//        std::cerr << "\nUsage: " << argv[0] << " paramfile:"<<"file" << " more-opts:val ..." << std::endl;
-//        Parameters().PrintParameterSpecs( std::cerr );
-//        std::cerr << std::endl;
-//        return 2;
-//    }
-//    else {
-//        Parameters().SetGridDimension( GridType::dimensionworld );
-//        Parameters().SetPolOrder( POLORDER );
-//        Parameters().Print( std::cout );
-//    }
-
-        // LOG_NONE = 1, LOG_ERR = 2, LOG_INFO = 4,LOG_DEBUG = 8,LOG_CONSOLE = 16,LOG_FILE = 32
-        //--> LOG_ERR | LOG_INFO | LOG_DEBUG | LOG_CONSOLE | LOG_FILE = 62
-        Logger().Create( Parameters().getParam( "loglevel", 62 ),
-                         Parameters().getParam( "logfile", std::string("dune_stokes") ) );
-
-        int maxref = Parameters().getParam( "maxref", 0 );
-        int minref = Parameters().getParam( "minref", 0 );
-
-        std::cout << "loading dgf " << Parameters().DgfFilename( PDIM ) << std :: endl;
-
-        algorithm( Parameters().DgfFilename( PDIM ), maxref );
-
-        return 0;
+  try {
+    if (!(Parameters().ReadCommandLine(argc, argv))) {
+      return 1;
     }
-    catch ( Exception e )
-    {
-        std :: cerr << e << std :: endl;
-    }
+    //    if ( !(  Parameters().SetUp() ) ) {
+    //        std::cerr << "\nUsage: " << argv[0] << " parameterfile \n" << "\t --- OR --- \n";
+    //        std::cerr << "\nUsage: " << argv[0] << " paramfile:"<<"file" << " more-opts:val ..." << std::endl;
+    //        Parameters().PrintParameterSpecs( std::cerr );
+    //        std::cerr << std::endl;
+    //        return 2;
+    //    }
+    //    else {
+    //        Parameters().SetGridDimension( GridType::dimensionworld );
+    //        Parameters().SetPolOrder( POLORDER );
+    //        Parameters().Print( std::cout );
+    //    }
+
+    // LOG_NONE = 1, LOG_ERR = 2, LOG_INFO = 4,LOG_DEBUG = 8,LOG_CONSOLE = 16,LOG_FILE = 32
+    //--> LOG_ERR | LOG_INFO | LOG_DEBUG | LOG_CONSOLE | LOG_FILE = 62
+    Logger().Create(Parameters().getParam("loglevel", 62),
+                    Parameters().getParam("logfile", std::string("dune_stokes")));
+
+    int maxref = Parameters().getParam("maxref", 0);
+    int minref = Parameters().getParam("minref", 0);
+
+    std::cout << "loading dgf " << Parameters().DgfFilename(PDIM) << std::endl;
+
+    algorithm(Parameters().DgfFilename(PDIM), maxref);
+
+    return 0;
+  }
+  catch (Exception e) {
+    std::cerr << e << std::endl;
+  }
 }
 
-double algorithm( const std :: string &filename, int maxlevel )
-{
-    GridPtr< GridType > gridptr( filename );
-    gridptr->globalRefine( maxlevel );
-    std::cout << "maxlevel = "<< maxlevel << std :: endl;
+double algorithm(const std::string& filename, int maxlevel) {
+  GridPtr<GridType> gridptr(filename);
+  gridptr->globalRefine(maxlevel);
+  std::cout << "maxlevel = " << maxlevel << std::endl;
 
-    // if a filteredgridpart is used
-    //Dune::FieldVector<GridType::ctype,GridType::dimension> C(0.5);
-    //ElementIntegratorTraitsType::FilterType filter(C, 0.4);
-    //
-    //GridPartType part(*gridptr,filter);
-    GridPartType part( *gridptr );
+  // if a filteredgridpart is used
+  // Dune::FieldVector<GridType::ctype,GridType::dimension> C(0.5);
+  // ElementIntegratorTraitsType::FilterType filter(C, 0.4);
+  //
+  // GridPartType part(*gridptr,filter);
+  GridPartType part(*gridptr);
 
-    DiscreteFunctionSpaceType linFuncSpace( part );
-    std :: cout << std :: endl;
-    std :: cout << "Solving for " << linFuncSpace.size() << " unkowns."
-                << std :: endl << std :: endl;
-    DiscreteFunctionType solution( "sol", linFuncSpace );
-    solution.clear();
-    DiscreteFunctionType rhs( "rhs", linFuncSpace );
-    rhs.clear();
+  DiscreteFunctionSpaceType linFuncSpace(part);
+  std::cout << std::endl;
+  std::cout << "Solving for " << linFuncSpace.size() << " unkowns." << std::endl << std::endl;
+  DiscreteFunctionType solution("sol", linFuncSpace);
+  solution.clear();
+  DiscreteFunctionType rhs("rhs", linFuncSpace);
+  rhs.clear();
 
-    // decide, whether you want to have detailed verbosity output
-//     const int verbose = 1;
-    const int verbose = 0;
+  // decide, whether you want to have detailed verbosity output
+  //     const int verbose = 1;
+  const int verbose = 0;
 
-    // initialize Model and Exact solution
-    EllipticModelType model;
-    std :: cout << "Model initialized." << std :: endl;
+  // initialize Model and Exact solution
+  EllipticModelType model;
+  std::cout << "Model initialized." << std::endl;
 
-    // initialize elementmatrix-provider
-    ElementMatrixIntegratorType elMatInt( model, linFuncSpace, verbose );
-    std :: cout << "Element-matrix integrator initialized" << std :: endl;
+  // initialize elementmatrix-provider
+  ElementMatrixIntegratorType elMatInt(model, linFuncSpace, verbose);
+  std::cout << "Element-matrix integrator initialized" << std::endl;
 
-    // initialize ElementRhsIntegrator
-    ElementRhsIntegratorType elRhsInt( model, linFuncSpace, verbose );
-    std :: cout << "Element-rhs integrator initialized." << std :: endl;
+  // initialize ElementRhsIntegrator
+  ElementRhsIntegratorType elRhsInt(model, linFuncSpace, verbose);
+  std::cout << "Element-rhs integrator initialized." << std::endl;
 
-    // initialize RhsAssembler
-    RhsAssemblerType rhsAssembler( elRhsInt, verbose );
-    std :: cout << "Rhs assembler initialized." << std :: endl;
+  // initialize RhsAssembler
+  RhsAssemblerType rhsAssembler(elRhsInt, verbose);
+  std::cout << "Rhs assembler initialized." << std::endl;
 
-    // initialize Operator
-    // const int numNonZero = 27;
-    const int numNonZero = 200;
-    EllipticOperatorType elliptOp( elMatInt,
-                                   EllipticOperatorType::ASSEMBLED,
-                                   numNonZero,
-                                   verbose );
-    std::cout << "operator (i.e. matrix assembler) initialized." << std :: endl;
+  // initialize Operator
+  // const int numNonZero = 27;
+  const int numNonZero = 200;
+  EllipticOperatorType elliptOp(elMatInt, EllipticOperatorType::ASSEMBLED, numNonZero, verbose);
+  std::cout << "operator (i.e. matrix assembler) initialized." << std::endl;
 
-    // checkConsistency only required for new SparseMatrix
-    assert( elliptOp.systemMatrix().checkConsistency() );
-    std::cout << "System matrix passed consistency check." << std :: endl;
+  // checkConsistency only required for new SparseMatrix
+  assert(elliptOp.systemMatrix().checkConsistency());
+  std::cout << "System matrix passed consistency check." << std::endl;
 
-    // assemble matrix and perform dirichlet-row killing
-    elliptOp.assemble();
-    std :: cout << "Assembled matrix with Dirichlet treatment" << std :: endl;
+  // assemble matrix and perform dirichlet-row killing
+  elliptOp.assemble();
+  std::cout << "Assembled matrix with Dirichlet treatment" << std::endl;
 
-    // build right hand side and dirichlet-Dof setting
-    rhsAssembler.assemble( rhs );
-    std::cout << "Assembled rhs with Dirichlet treatment" << std :: endl;
+  // build right hand side and dirichlet-Dof setting
+  rhsAssembler.assemble(rhs);
+  std::cout << "Assembled rhs with Dirichlet treatment" << std::endl;
 
-    // if symmetrization of system is wanted, execute the following
+// if symmetrization of system is wanted, execute the following
 #if ACTIVATE_KRONECKER_TREATMENT
-    {
-        elliptOp.matrixKroneckerColumnsTreatment();
-        std::cout << "finished matrix Kronecker column treatment\n";
+  {
+    elliptOp.matrixKroneckerColumnsTreatment();
+    std::cout << "finished matrix Kronecker column treatment\n";
 
-        if (verbose)
-        {
-            std::cout << "Values of matrix: \n";
-            elliptOp.systemMatrix().printReal(std::cout);
+    if (verbose) {
+      std::cout << "Values of matrix: \n";
+      elliptOp.systemMatrix().printReal(std::cout);
 
-            std::cout << "Columns of matrix: \n";
-            elliptOp.systemMatrix().printColumns(std::cout);
-            std::cout << "Nonzero-Array of matrix: \n";
-            elliptOp.systemMatrix().printNonZeros(std::cout);
-            std::cout << "\n";
-            assert(elliptOp.systemMatrix().checkConsistency());
-            std::cout << "\n";
-        }
-
-        elliptOp.rhsKroneckerColumnsTreatment(rhs);
-        if (verbose)
-        {
-            std::cout << "finished Rhs Kronecker column treatment\n";
-        }
+      std::cout << "Columns of matrix: \n";
+      elliptOp.systemMatrix().printColumns(std::cout);
+      std::cout << "Nonzero-Array of matrix: \n";
+      elliptOp.systemMatrix().printNonZeros(std::cout);
+      std::cout << "\n";
+      assert(elliptOp.systemMatrix().checkConsistency());
+      std::cout << "\n";
     }
+
+    elliptOp.rhsKroneckerColumnsTreatment(rhs);
+    if (verbose) {
+      std::cout << "finished Rhs Kronecker column treatment\n";
+    }
+  }
 #endif
 
-    double dummy = 12345.67890;
-    InverseOperatorType cg( elliptOp, dummy, 1e-15, 20000, (verbose > 0) );
+  double dummy = 12345.67890;
+  InverseOperatorType cg(elliptOp, dummy, 1e-15, 20000, (verbose > 0));
 
-    // solve linear system with cg
-    cg( rhs, solution);
+  // solve linear system with cg
+  cg(rhs, solution);
 
-    VTKWriterType vtkWriter_( part );
-    VTK_WRITE( solution );
-    return -1;
+  VTKWriterType vtkWriter_(part);
+  VTK_WRITE(solution);
+  return -1;
 }
 
-
-
-/** Copyright (c) 2012, Felix Albrecht, Rene Milk      
+/** Copyright (c) 2012, Felix Albrecht, Rene Milk
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
- * 
+ * modification, are permitted provided that the following conditions are met:
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -494,9 +453,8 @@ double algorithm( const std :: string &filename, int maxlevel )
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those
- * of the authors and should not be interpreted as representing official policies, 
+ * of the authors and should not be interpreted as representing official policies,
  * either expressed or implied, of the FreeBSD Project.
 **/
-

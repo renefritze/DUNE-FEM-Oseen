@@ -16,8 +16,8 @@
 #include <dune/oseen/stab_coeff.hh>
 
 #ifndef NLOG
-    #include <dune/stuff/printing.hh>
-    #include <dune/stuff/logging.hh>
+#include <dune/stuff/printing.hh>
+#include <dune/stuff/logging.hh>
 #endif
 
 #include <dune/stuff/misc.hh>
@@ -29,8 +29,7 @@
 // the macros we want to use
 #include <dune/common/bartonnackmanifcheck.hh>
 
-namespace Dune
-{
+namespace Dune {
 /**
  *  \brief  Interface class for stokes problem definition in the LDG context.
  *
@@ -222,236 +221,190 @@ namespace Dune
  *          traits class defined by the user, should provide all types needed
  *          by this interface
  **/
-template < class DiscreteOseenModelTraits >
-class DiscreteOseenModelInterface
-{
-    public:
+template <class DiscreteOseenModelTraits>
+class DiscreteOseenModelInterface {
+public:
 
-        //! traits class defined by the user
-        typedef DiscreteOseenModelTraits
-            Traits;
+  //! traits class defined by the user
+  typedef DiscreteOseenModelTraits Traits;
 
-    private:
+private:
 
-        //! implementation type for CRTP
-        typedef typename Traits::DiscreteModelType
-            DiscreteModelType;
+  //! implementation type for CRTP
+  typedef typename Traits::DiscreteModelType DiscreteModelType;
 
-    public:
+public:
 
-        //! volume quadrature type to be used in pass
-        typedef typename Traits::VolumeQuadratureType
-            VolumeQuadratureType;
+  //! volume quadrature type to be used in pass
+  typedef typename Traits::VolumeQuadratureType VolumeQuadratureType;
 
-        //! face quadrature type to be used in pass
-        typedef typename Traits::FaceQuadratureType
-            FaceQuadratureType;
+  //! face quadrature type to be used in pass
+  typedef typename Traits::FaceQuadratureType FaceQuadratureType;
 
-        //! discrete function space wrapper type
-        typedef typename Traits::DiscreteOseenFunctionSpaceWrapperType
-            DiscreteOseenFunctionSpaceWrapperType;
+  //! discrete function space wrapper type
+  typedef typename Traits::DiscreteOseenFunctionSpaceWrapperType DiscreteOseenFunctionSpaceWrapperType;
 
-        //! discrete function wrapper type
-        typedef typename Traits::DiscreteOseenFunctionWrapperType
-            DiscreteOseenFunctionWrapperType;
+  //! discrete function wrapper type
+  typedef typename Traits::DiscreteOseenFunctionWrapperType DiscreteOseenFunctionWrapperType;
 
-    private:
+private:
 
-        //! discrete function type for the velocity
-        typedef typename DiscreteOseenFunctionWrapperType::DiscreteVelocityFunctionType
-            DiscreteVelocityFunctionType;
+  //! discrete function type for the velocity
+  typedef typename DiscreteOseenFunctionWrapperType::DiscreteVelocityFunctionType DiscreteVelocityFunctionType;
 
-        //! discrete function space type for the velocity
-        typedef typename DiscreteVelocityFunctionType::DiscreteFunctionSpaceType
-            DiscreteVelocityFunctionSpaceType;   
+  //! discrete function space type for the velocity
+  typedef typename DiscreteVelocityFunctionType::DiscreteFunctionSpaceType DiscreteVelocityFunctionSpaceType;
 
-    public:
-		//! function space type for the velocity
-		typedef typename DiscreteVelocityFunctionSpaceType::FunctionSpaceType
-			VelocityFunctionSpaceType;
+public:
+  //! function space type for the velocity
+  typedef typename DiscreteVelocityFunctionSpaceType::FunctionSpaceType VelocityFunctionSpaceType;
 
-        //! discrete function type for sigma
-        typedef typename Traits::DiscreteSigmaFunctionType
-            DiscreteSigmaFunctionType;
+  //! discrete function type for sigma
+  typedef typename Traits::DiscreteSigmaFunctionType DiscreteSigmaFunctionType;
 
-    private:
+private:
 
-        //! discrete function space type for sigma
-        typedef typename DiscreteSigmaFunctionType::DiscreteFunctionSpaceType
-            DiscreteSigmaFunctionSpaceType;
+  //! discrete function space type for sigma
+  typedef typename DiscreteSigmaFunctionType::DiscreteFunctionSpaceType DiscreteSigmaFunctionSpaceType;
 
-        //! function space type for sigma
-        typedef typename DiscreteSigmaFunctionSpaceType::FunctionSpaceType
-            SigmaFunctionSpaceType;
+  //! function space type for sigma
+  typedef typename DiscreteSigmaFunctionSpaceType::FunctionSpaceType SigmaFunctionSpaceType;
 
-        //! discrete function type for the pressure
-        typedef typename DiscreteOseenFunctionWrapperType::DiscretePressureFunctionType
-            DiscretePressureFunctionType;
+  //! discrete function type for the pressure
+  typedef typename DiscreteOseenFunctionWrapperType::DiscretePressureFunctionType DiscretePressureFunctionType;
 
-        //! discrete function space type for the pressure
-        typedef typename DiscretePressureFunctionType::DiscreteFunctionSpaceType
-            DiscretePressureFunctionSpaceType;
+  //! discrete function space type for the pressure
+  typedef typename DiscretePressureFunctionType::DiscreteFunctionSpaceType DiscretePressureFunctionSpaceType;
 
-        //! function space type for the pressure
-        typedef typename DiscretePressureFunctionSpaceType::FunctionSpaceType
-            PressureFunctionSpaceType;
+  //! function space type for the pressure
+  typedef typename DiscretePressureFunctionSpaceType::FunctionSpaceType PressureFunctionSpaceType;
 
-    protected:
+protected:
 
-        //! function type for analytical force
-        typedef typename Traits::AnalyticalForceType
-            AnalyticalForceType;
+  //! function type for analytical force
+  typedef typename Traits::AnalyticalForceType AnalyticalForceType;
 
-        //! function type for analytical dirichlet data
-        typedef typename Traits::AnalyticalDirichletDataType
-            AnalyticalDirichletDataType;
+  //! function type for analytical dirichlet data
+  typedef typename Traits::AnalyticalDirichletDataType AnalyticalDirichletDataType;
 
-    private:
+private:
 
-        //! coordinate type (world coordinates)
-        typedef typename DiscreteVelocityFunctionSpaceType::DomainType
-            DomainType;
+  //! coordinate type (world coordinates)
+  typedef typename DiscreteVelocityFunctionSpaceType::DomainType DomainType;
 
-    protected:
+protected:
 
-        //! vector type of the velocity's discrete function space's range
-        typedef typename DiscreteVelocityFunctionSpaceType::RangeType
-            VelocityRangeType;
+  //! vector type of the velocity's discrete function space's range
+  typedef typename DiscreteVelocityFunctionSpaceType::RangeType VelocityRangeType;
 
-        //! matrix type of sigmas' discrete functions space's range
-        typedef typename DiscreteSigmaFunctionSpaceType::RangeType
-            SigmaRangeType;
+  //! matrix type of sigmas' discrete functions space's range
+  typedef typename DiscreteSigmaFunctionSpaceType::RangeType SigmaRangeType;
 
-        //! vector type of the pressure's discrete function space's range
-        typedef typename DiscretePressureFunctionSpaceType::RangeType
-            PressureRangeType;
+  //! vector type of the pressure's discrete function space's range
+  typedef typename DiscretePressureFunctionSpaceType::RangeType PressureRangeType;
 
-    private:
+private:
 
-        //! type of GridPart
-        typedef typename DiscreteVelocityFunctionSpaceType::GridPartType
-            GridPartType;
+  //! type of GridPart
+  typedef typename DiscreteVelocityFunctionSpaceType::GridPartType GridPartType;
 
-        //! type of the grid
-        typedef typename GridPartType::GridType
-            GridType;
+  //! type of the grid
+  typedef typename GridPartType::GridType GridType;
 
-    protected:
+protected:
 
-        //! intersection iterator of the grid
-        typedef typename GridPartType::IntersectionIteratorType
-            IntersectionIteratorType;
+  //! intersection iterator of the grid
+  typedef typename GridPartType::IntersectionIteratorType IntersectionIteratorType;
 
-    private:
+private:
 
-        //! element type (codim 0 entity) of the grid
-        typedef typename GridType::template Codim<0>::Entity
-            EntityType;
+  //! element type (codim 0 entity) of the grid
+  typedef typename GridType::template Codim<0>::Entity EntityType;
 
-    public:
+public:
 
-        //! polynomial order for the discrete sigma function space
-        static const int sigmaSpaceOrder = Traits::sigmaSpaceOrder;
-        //! polynomial order for the discrete velocity function space
-        static const int velocitySpaceOrder = Traits::velocitySpaceOrder;
-        //! polynomial order for the discrete pressure function space
-        static const int pressureSpaceOrder = Traits::pressureSpaceOrder;
+  //! polynomial order for the discrete sigma function space
+  static const int sigmaSpaceOrder = Traits::sigmaSpaceOrder;
+  //! polynomial order for the discrete velocity function space
+  static const int velocitySpaceOrder = Traits::velocitySpaceOrder;
+  //! polynomial order for the discrete pressure function space
+  static const int pressureSpaceOrder = Traits::pressureSpaceOrder;
 
-        /**
-         *  \brief  constructor
-         *
-         *  does nothing
-         **/
-        DiscreteOseenModelInterface()
-        {}
+  /**
+   *  \brief  constructor
+   *
+   *  does nothing
+   **/
+  DiscreteOseenModelInterface() {}
 
-        /**
-         *  \brief  destructor
-         *
-         *  does nothing
-         **/
-	virtual ~DiscreteOseenModelInterface()
-        {}
+  /**
+   *  \brief  destructor
+   *
+   *  does nothing
+   **/
+  virtual ~DiscreteOseenModelInterface() {}
 
-        /**
-         *  \brief  contains "inside" and "outside", needed for the fluxes
-         **/
-        enum Side{
-            inside,
-            outside
-        };
+  /**
+   *  \brief  contains "inside" and "outside", needed for the fluxes
+   **/
+  enum Side {
+    inside,
+    outside
+  };
 
-        const StabilizationCoefficients& getStabilizationCoefficients() const {
-            return asImp().getStabilizationCoefficients();
-        }
+  const StabilizationCoefficients& getStabilizationCoefficients() const {
+    return asImp().getStabilizationCoefficients();
+  }
 
-        /**
-         *  \brief  Returns true if problem has a flux contribution of type
-         *          \f$\hat{u}_{\sigma}\f$.
-         *          Calls the implementation of the derived class.
-         *  \attention  If you let this method return true, make sure to
-         *              implement <b>all</b> versions of velocitySigmaFlux() and
-         *              velocitySigmaBoundaryFlux() as well
-         **/
-        bool hasVelocitySigmaFlux() const
-        {
-            return asImp().hasVelocitySigmaFlux();
-        }
+  /**
+   *  \brief  Returns true if problem has a flux contribution of type
+   *          \f$\hat{u}_{\sigma}\f$.
+   *          Calls the implementation of the derived class.
+   *  \attention  If you let this method return true, make sure to
+   *              implement <b>all</b> versions of velocitySigmaFlux() and
+   *              velocitySigmaBoundaryFlux() as well
+   **/
+  bool hasVelocitySigmaFlux() const { return asImp().hasVelocitySigmaFlux(); }
 
-        /**
-         *  \brief  Returns true if problem has a flux contribution of type
-         *          \f$\hat{u}_{p}\f$.
-         *          Calls the implementation of the derived class.
-         *  \attention  If you let this method return true, make sure to
-         *              implement <b>all</b> versions of velocityPressureFlux()
-         *              and velocityPressureBoundaryFlux() as well.
-         **/
-        bool hasVelocityPressureFlux() const
-        {
-            return asImp().hasVelocityPressureFlux();
-        }
+  /**
+   *  \brief  Returns true if problem has a flux contribution of type
+   *          \f$\hat{u}_{p}\f$.
+   *          Calls the implementation of the derived class.
+   *  \attention  If you let this method return true, make sure to
+   *              implement <b>all</b> versions of velocityPressureFlux()
+   *              and velocityPressureBoundaryFlux() as well.
+   **/
+  bool hasVelocityPressureFlux() const { return asImp().hasVelocityPressureFlux(); }
 
-        /**
-         *  \brief  Returns true if problem has a flux contribution of type
-         *          \f$\hat{p}\f$.
-         *          Calls the implementation of the derived class.
-         *  \attention  If you let this method return true, make sure to
-         *              implement <b>all</b> versions of pressureFlux() and
-         *              pressureBoundaryFlux() as well.
-         **/
-        bool hasPressureFlux() const
-        {
-            return asImp().hasPressureFlux();
-        }
+  /**
+   *  \brief  Returns true if problem has a flux contribution of type
+   *          \f$\hat{p}\f$.
+   *          Calls the implementation of the derived class.
+   *  \attention  If you let this method return true, make sure to
+   *              implement <b>all</b> versions of pressureFlux() and
+   *              pressureBoundaryFlux() as well.
+   **/
+  bool hasPressureFlux() const { return asImp().hasPressureFlux(); }
 
-        /**
-         *  \brief  Returns true if problem has a flux contribution of type
-         *          \f$\hat{\sigma}\f$.
-         *          Calls the implementation of the derived class.
-         *  \attention  If you let this method return true, make sure to
-         *              implement <b>all</b> versions of sigmaFlux() and
-         *              sigmaBoundaryFlux() as well.
-         **/
-        bool hasSigmaFlux() const
-        {
-            return asImp().hasSigmaFlux();
-        }
+  /**
+   *  \brief  Returns true if problem has a flux contribution of type
+   *          \f$\hat{\sigma}\f$.
+   *          Calls the implementation of the derived class.
+   *  \attention  If you let this method return true, make sure to
+   *              implement <b>all</b> versions of sigmaFlux() and
+   *              sigmaBoundaryFlux() as well.
+   **/
+  bool hasSigmaFlux() const { return asImp().hasSigmaFlux(); }
 
-        /**
-         *  \brief  Returns true if problem has a force contribution \f$f\f$.
-         *          Calls the implementation of the derived class.
-         *  \attention  If you let this method return true, make sure to
-         *              implement force() as well.
-         **/
-        bool hasForce() const
-        {
-            return asImp().hasForce();
-        }
+  /**
+   *  \brief  Returns true if problem has a force contribution \f$f\f$.
+   *          Calls the implementation of the derived class.
+   *  \attention  If you let this method return true, make sure to
+   *              implement force() as well.
+   **/
+  bool hasForce() const { return asImp().hasForce(); }
 
-        bool isGeneralized() const
-        {
-            return asImp().isGeneralized();
-        }
+  bool isGeneralized() const { return asImp().isGeneralized(); }
 #if 0
         /**
          *  \brief  Implementation of \f$\hat{u}_{\sigma}^{U^{+}}\f$ and
@@ -1113,235 +1066,181 @@ class DiscreteOseenModelInterface
                                             rhsReturn ) );
         }
 #endif
-        /**
-         *  \brief  Implementation of \f$f\f$.
-         *          Calls the implementation of the derived class.
-         *
-         *  \tparam DomainType
-         *          domain type in entity (codim 0)
-         *  \param[in]  time
-         *          global time
-         *  \param[in]  x
-         *          point to evaluate at (in world coordinates)
-         *  \param[out]  forceReturn
-         *          value of \f$f\f$ in \f$x\f$
-         **/
-        template < class DomainType >
-        void force( const double time,
-                    const DomainType& x,
-                    VelocityRangeType& forceReturn ) const
-        {
-            CHECK_AND_CALL_INTERFACE_IMPLEMENTATION(
-                asImp().force(  time,
-                                x,
-                                forceReturn ) );
-        }
+  /**
+   *  \brief  Implementation of \f$f\f$.
+   *          Calls the implementation of the derived class.
+   *
+   *  \tparam DomainType
+   *          domain type in entity (codim 0)
+   *  \param[in]  time
+   *          global time
+   *  \param[in]  x
+   *          point to evaluate at (in world coordinates)
+   *  \param[out]  forceReturn
+   *          value of \f$f\f$ in \f$x\f$
+   **/
+  template <class DomainType>
+  void force(const double time, const DomainType& x, VelocityRangeType& forceReturn) const {
+    CHECK_AND_CALL_INTERFACE_IMPLEMENTATION(asImp().force(time, x, forceReturn));
+  }
 
-        template < class IntersectionType, class DomainType >
-        void dirichletData( const IntersectionType& intIt,
-                            const double time,
-                            const DomainType& x,
-                            VelocityRangeType& dirichletDataReturn ) const
-        {
-            CHECK_AND_CALL_INTERFACE_IMPLEMENTATION(
-                asImp().dirichletData(  intIt,
-                                        time,
-                                        x,
-                                        dirichletDataReturn ) );
-        }
+  template <class IntersectionType, class DomainType>
+  void dirichletData(const IntersectionType& intIt, const double time, const DomainType& x,
+                     VelocityRangeType& dirichletDataReturn) const {
+    CHECK_AND_CALL_INTERFACE_IMPLEMENTATION(asImp().dirichletData(intIt, time, x, dirichletDataReturn));
+  }
 
-        /**
-         *  \brief  Returns the viscosity \f$\mu\f$ of the fluid.
-         *          Calls the implementation of the derived class.
-         *  \return \f$\mu\f$
-         **/
-        double viscosity() const
-        {
-            CHECK_INTERFACE_IMPLEMENTATION( asImp().viscosity() );
-            return asImp().viscosity();
-        }
+  /**
+   *  \brief  Returns the viscosity \f$\mu\f$ of the fluid.
+   *          Calls the implementation of the derived class.
+   *  \return \f$\mu\f$
+   **/
+  double viscosity() const {
+    CHECK_INTERFACE_IMPLEMENTATION(asImp().viscosity());
+    return asImp().viscosity();
+  }
 
-        /**
-         *  \brief  constant for generalized stokes
-         *
-         *  \todo   doc
-         **/
-        double alpha() const
-        {
-            CHECK_INTERFACE_IMPLEMENTATION( asImp().alpha() );
-            return asImp().alpha();
-        }
+  /**
+   *  \brief  constant for generalized stokes
+   *
+   *  \todo   doc
+   **/
+  double alpha() const {
+    CHECK_INTERFACE_IMPLEMENTATION(asImp().alpha());
+    return asImp().alpha();
+  }
 
-		//! ZAF
-		double convection_scaling() const
-        {
-            CHECK_INTERFACE_IMPLEMENTATION( asImp().convection_scaling() );
-            return asImp().convection_scaling();
-        }
+  //! ZAF
+  double convection_scaling() const {
+    CHECK_INTERFACE_IMPLEMENTATION(asImp().convection_scaling());
+    return asImp().convection_scaling();
+  }
 
-		//! ZAF
-		double pressure_gradient_scaling() const
-        {
-            CHECK_INTERFACE_IMPLEMENTATION( asImp().pressure_gradient_scaling() );
-            return asImp().pressure_gradient_scaling();
-        }
+  //! ZAF
+  double pressure_gradient_scaling() const {
+    CHECK_INTERFACE_IMPLEMENTATION(asImp().pressure_gradient_scaling());
+    return asImp().pressure_gradient_scaling();
+  }
 
-    private:
-        //! for CRTP trick
-        DiscreteModelType& asImp()
-        {
-            return static_cast< DiscreteModelType& >(*this);
-        }
+private:
+  //! for CRTP trick
+  DiscreteModelType& asImp() { return static_cast<DiscreteModelType&>(*this); }
 
-        //! for CRTP trick
-        const DiscreteModelType& asImp() const
-        {
-            return static_cast< const DiscreteModelType& >(*this);
-        }
-
+  //! for CRTP trick
+  const DiscreteModelType& asImp() const { return static_cast<const DiscreteModelType&>(*this); }
 };
 
 // forward declaration
-template < class DiscreteOseenModelDefaultTraitsImp >
+template <class DiscreteOseenModelDefaultTraitsImp>
 class DiscreteOseenModelDefault;
 
 /**
  *  \brief  Traits class for DiscreteOseenModelDefault
  **/
-template < class GridImp, template <class > class AnalyticalForceImp, class AnalyticalDirichletDataTraits,
-            int gridDim, int sigmaOrder, int velocityOrder = sigmaOrder, int pressureOrder = sigmaOrder,
-           template< class, class, int, template<class> class BaseFunctionStorageImp = Dune::CachingStorage > class GalerkinSpaceImp = Dune::DiscontinuousGalerkinSpace>
-class DiscreteOseenModelDefaultTraits
-{
-    public:
-        //! using DGAdaptiveLeafGridPart is mandated by DUNE-FEM, but not in any way checked...
-        typedef Dune::DGAdaptiveLeafGridPart< GridImp >
-            GridPartType;
-        //! for CRTP trick
-        typedef DiscreteOseenModelDefault < DiscreteOseenModelDefaultTraits >
-            DiscreteModelType;
+template <class GridImp, template <class> class AnalyticalForceImp, class AnalyticalDirichletDataTraits, int gridDim,
+          int sigmaOrder, int velocityOrder = sigmaOrder, int pressureOrder = sigmaOrder,
+          template <class, class, int, template <class> class BaseFunctionStorageImp = Dune::CachingStorage>
+          class GalerkinSpaceImp = Dune::DiscontinuousGalerkinSpace>
+class DiscreteOseenModelDefaultTraits {
+public:
+  //! using DGAdaptiveLeafGridPart is mandated by DUNE-FEM, but not in any way checked...
+  typedef Dune::DGAdaptiveLeafGridPart<GridImp> GridPartType;
+  //! for CRTP trick
+  typedef DiscreteOseenModelDefault<DiscreteOseenModelDefaultTraits> DiscreteModelType;
 
-        //! we use caching quadratures for the entities
-        typedef Dune::CachingQuadrature< GridPartType, 0 >
-            VolumeQuadratureType;
+  //! we use caching quadratures for the entities
+  typedef Dune::CachingQuadrature<GridPartType, 0> VolumeQuadratureType;
 
-        //! we use caching quadratures for the faces
-        typedef Dune::CachingQuadrature< GridPartType, 1 >
-            FaceQuadratureType;
+  //! we use caching quadratures for the faces
+  typedef Dune::CachingQuadrature<GridPartType, 1> FaceQuadratureType;
 
-        //! polynomial order for the discrete sigma function space
-        static const int sigmaSpaceOrder = sigmaOrder;
-        //! polynomial order for the discrete velocity function space
-        static const int velocitySpaceOrder = velocityOrder;
-        //! polynomial order for the discrete pressure function space
-        static const int pressureSpaceOrder = pressureOrder;
+  //! polynomial order for the discrete sigma function space
+  static const int sigmaSpaceOrder = sigmaOrder;
+  //! polynomial order for the discrete velocity function space
+  static const int velocitySpaceOrder = velocityOrder;
+  //! polynomial order for the discrete pressure function space
+  static const int pressureSpaceOrder = pressureOrder;
 
-//    private:
+  //    private:
 
-        //! function space type for the velocity
-        typedef Dune::FunctionSpace< double, double, gridDim, gridDim >
-            VelocityFunctionSpaceType;
+  //! function space type for the velocity
+  typedef Dune::FunctionSpace<double, double, gridDim, gridDim> VelocityFunctionSpaceType;
 
-        //! discrete function space type for the velocity
-        typedef GalerkinSpaceImp<   VelocityFunctionSpaceType,
-                                                    GridPartType,
-                                                    velocitySpaceOrder >
-            DiscreteVelocityFunctionSpaceType;
+  //! discrete function space type for the velocity
+  typedef GalerkinSpaceImp<VelocityFunctionSpaceType, GridPartType, velocitySpaceOrder>
+  DiscreteVelocityFunctionSpaceType;
 
-        //! function space type for the pressure
-        typedef Dune::FunctionSpace< double, double, gridDim, 1 >
-            PressureFunctionSpaceType;
+  //! function space type for the pressure
+  typedef Dune::FunctionSpace<double, double, gridDim, 1> PressureFunctionSpaceType;
 
-        //! discrete function space type for the pressure
-        typedef GalerkinSpaceImp<   PressureFunctionSpaceType,
-                                                    GridPartType,
-                                                    pressureSpaceOrder >
-            DiscretePressureFunctionSpaceType;
+  //! discrete function space type for the pressure
+  typedef GalerkinSpaceImp<PressureFunctionSpaceType, GridPartType, pressureSpaceOrder>
+  DiscretePressureFunctionSpaceType;
 
-    public:
+public:
 
-        //! discrete function space wrapper type
-        typedef Dune::DiscreteOseenFunctionSpaceWrapper< Dune::DiscreteOseenFunctionSpaceWrapperTraits<
-                    DiscreteVelocityFunctionSpaceType,
-                    DiscretePressureFunctionSpaceType > >
-            DiscreteOseenFunctionSpaceWrapperType;
+  //! discrete function space wrapper type
+  typedef Dune::DiscreteOseenFunctionSpaceWrapper<Dune::DiscreteOseenFunctionSpaceWrapperTraits<
+      DiscreteVelocityFunctionSpaceType, DiscretePressureFunctionSpaceType>> DiscreteOseenFunctionSpaceWrapperType;
 
-    private:
-        //! function space type for sigma
-        typedef Dune::MatrixFunctionSpace<  double,
-                                            double,
-                                            gridDim,
-                                            gridDim,
-                                            gridDim >
-            SigmaFunctionSpaceType;
+private:
+  //! function space type for sigma
+  typedef Dune::MatrixFunctionSpace<double, double, gridDim, gridDim, gridDim> SigmaFunctionSpaceType;
 
-        //! discrete function space type for sigma
-        typedef GalerkinSpaceImp<   SigmaFunctionSpaceType,
-                                                    GridPartType,
-                                                    sigmaSpaceOrder >
-            DiscreteSigmaFunctionSpaceType;
+  //! discrete function space type for sigma
+  typedef GalerkinSpaceImp<SigmaFunctionSpaceType, GridPartType, sigmaSpaceOrder> DiscreteSigmaFunctionSpaceType;
 
 #if STOKES_USE_ISTL
-        //! discrete function type for the velocity
-        typedef Dune::BlockVectorDiscreteFunction< typename DiscreteOseenFunctionSpaceWrapperType::DiscreteVelocityFunctionSpaceType >
-            DiscreteVelocityFunctionType;
+  //! discrete function type for the velocity
+  typedef Dune::BlockVectorDiscreteFunction<
+      typename DiscreteOseenFunctionSpaceWrapperType::DiscreteVelocityFunctionSpaceType> DiscreteVelocityFunctionType;
 
-        //! discrete function type for the pressure
-        typedef Dune::BlockVectorDiscreteFunction< typename DiscreteOseenFunctionSpaceWrapperType::DiscretePressureFunctionSpaceType >
-            DiscretePressureFunctionType;
+  //! discrete function type for the pressure
+  typedef Dune::BlockVectorDiscreteFunction<
+      typename DiscreteOseenFunctionSpaceWrapperType::DiscretePressureFunctionSpaceType> DiscretePressureFunctionType;
 
-    public:
-        //! discrete function type for sigma
-        typedef Dune::BlockVectorDiscreteFunction< DiscreteSigmaFunctionSpaceType >
-            DiscreteSigmaFunctionType;
+public:
+  //! discrete function type for sigma
+  typedef Dune::BlockVectorDiscreteFunction<DiscreteSigmaFunctionSpaceType> DiscreteSigmaFunctionType;
 #else
-        //! discrete function type for the velocity
-        typedef Dune::AdaptiveDiscreteFunction< typename DiscreteOseenFunctionSpaceWrapperType::DiscreteVelocityFunctionSpaceType >
-            DiscreteVelocityFunctionType;
+  //! discrete function type for the velocity
+  typedef Dune::AdaptiveDiscreteFunction<
+      typename DiscreteOseenFunctionSpaceWrapperType::DiscreteVelocityFunctionSpaceType> DiscreteVelocityFunctionType;
 
-        //! discrete function type for the pressure
-        typedef Dune::AdaptiveDiscreteFunction< typename DiscreteOseenFunctionSpaceWrapperType::DiscretePressureFunctionSpaceType >
-            DiscretePressureFunctionType;
+  //! discrete function type for the pressure
+  typedef Dune::AdaptiveDiscreteFunction<
+      typename DiscreteOseenFunctionSpaceWrapperType::DiscretePressureFunctionSpaceType> DiscretePressureFunctionType;
 
-    public:
-        //! discrete function type for sigma
-        typedef Dune::AdaptiveDiscreteFunction< DiscreteSigmaFunctionSpaceType >
-            DiscreteSigmaFunctionType;
+public:
+  //! discrete function type for sigma
+  typedef Dune::AdaptiveDiscreteFunction<DiscreteSigmaFunctionSpaceType> DiscreteSigmaFunctionType;
 
 #endif
 
-        //! discrete function wrapper type
-        typedef Dune::DiscreteOseenFunctionWrapper< Dune::DiscreteOseenFunctionWrapperTraits<
-                    DiscreteOseenFunctionSpaceWrapperType,
-                    DiscreteVelocityFunctionType,
-                    DiscretePressureFunctionType > >
-            DiscreteOseenFunctionWrapperType;
+  //! discrete function wrapper type
+  typedef Dune::DiscreteOseenFunctionWrapper<Dune::DiscreteOseenFunctionWrapperTraits<
+      DiscreteOseenFunctionSpaceWrapperType, DiscreteVelocityFunctionType, DiscretePressureFunctionType>>
+  DiscreteOseenFunctionWrapperType;
 
-        //! function type for the analytical force
-        typedef AnalyticalForceImp<VelocityFunctionSpaceType>
-            AnalyticalForceType;
+  //! function type for the analytical force
+  typedef AnalyticalForceImp<VelocityFunctionSpaceType> AnalyticalForceType;
 
-        //! function type for the analytical dirichlet data
-        typedef typename AnalyticalDirichletDataTraits::template Implementation<VelocityFunctionSpaceType,GridPartType >
-				AnalyticalDirichletDataTraitsImplementation;
-		typedef typename AnalyticalDirichletDataTraitsImplementation::AnalyticalDirichletDataType
-            AnalyticalDirichletDataType;
+  //! function type for the analytical dirichlet data
+  typedef typename AnalyticalDirichletDataTraits::template Implementation<VelocityFunctionSpaceType, GridPartType>
+  AnalyticalDirichletDataTraitsImplementation;
+  typedef typename AnalyticalDirichletDataTraitsImplementation::AnalyticalDirichletDataType AnalyticalDirichletDataType;
 
-		typedef DiscreteVelocityFunctionType
-			ExtraDataDiscreteFunctionType;
-        /**
-         *  \name   types needed for the pass
-         *  \{
-         **/
-        //! return type of the pass
-        typedef DiscreteOseenFunctionWrapperType
-            DestinationType;
-        /**
-         *  \}
-         **/
-
+  typedef DiscreteVelocityFunctionType ExtraDataDiscreteFunctionType;
+  /**
+   *  \name   types needed for the pass
+   *  \{
+   **/
+  //! return type of the pass
+  typedef DiscreteOseenFunctionWrapperType DestinationType;
+  /**
+   *  \}
+   **/
 };
-
 
 /**
  *  \brief  A default implementation of a discrete stokes model.
@@ -1410,7 +1309,8 @@ class DiscreteOseenModelDefaultTraits
  *          With this notation at hand the fluxes can de described as
  *          - \f$\hat{u}_{\sigma}:\Omega\rightarrow R^{d}\f$ for an inner face
  *              \f[
- *                  \hat{u}_{\sigma}(u):=\{\{u\}\}-\underline{\left[\left[u\right]\right]}\cdot C_{12}\quad\quad\varepsilon\in\mathcal{E}_{I},
+ *                  \hat{u}_{\sigma}(u):=\{\{u\}\}-\underline{\left[\left[u\right]\right]}\cdot
+ *C_{12}\quad\quad\varepsilon\in\mathcal{E}_{I},
  *              \f]
  *          - \f$\hat{u}_{\sigma}:\Omega\rightarrow R^{d}\f$ for a boundary face
  *              \f[
@@ -1418,11 +1318,13 @@ class DiscreteOseenModelDefaultTraits
  *              \f]
  *          - \f$\hat{\sigma}:\Omega\rightarrow R^{d\times d}\f$ for an inner face
  *              \f[
- *                  \hat{\sigma}(u,\sigma):=\{\{\sigma\}\}-C_{11}\underline{\left[\left[u\right]\right]}-\left[\left[\sigma\right]\right]\otimes C_{12}\quad\quad\varepsilon\in\mathcal{E}_{I},
+ *                  \hat{\sigma}(u,\sigma):=\{\{\sigma\}\}-C_{11}\underline{\left[\left[u\right]\right]}-\left[\left[\sigma\right]\right]\otimes
+ *C_{12}\quad\quad\varepsilon\in\mathcal{E}_{I},
  *              \f]
  *          - \f$\hat{\sigma}:\Omega\rightarrow R^{d\times d}\f$ for a boundary face
  *              \f[
- *                  \hat{\sigma}(u,\sigma):=\sigma^{+}-C_{11}\left(u^{+}-g_{D}\right)\otimes n^{+}\quad\quad\varepsilon\in\mathcal{E}_{D},
+ *                  \hat{\sigma}(u,\sigma):=\sigma^{+}-C_{11}\left(u^{+}-g_{D}\right)\otimes
+ *n^{+}\quad\quad\varepsilon\in\mathcal{E}_{D},
  *              \f]
  *          - \f$\hat{p}:\Omega\rightarrow R\f$ for an inner face
  *              \f[
@@ -1451,9 +1353,11 @@ class DiscreteOseenModelDefaultTraits
  *          \f {tabular} {l||l}
  *              on $\mathcal{E}_{I}$ & on $\mathcal{E}_{I}$ \\
  *                  \hline\hline
- *              $\boldsymbol{\hat{u}_{\sigma}^{U^{+}}(u)} := \frac{1}{2} u + \left( u \otimes n^{+} \right) \cdot C_{12}$
+ *              $\boldsymbol{\hat{u}_{\sigma}^{U^{+}}(u)} := \frac{1}{2} u + \left( u \otimes n^{+} \right) \cdot
+ *C_{12}$
  *                  & $\boldsymbol{\hat{u}_{\sigma}^{U^{+}}(u)} := 0$ \\
- *              $\boldsymbol{\hat{u}_{\sigma}^{U^{-}}(u)} := \frac{1}{2} u + \left( u \otimes n^{-} \right) \cdot C_{12}$
+ *              $\boldsymbol{\hat{u}_{\sigma}^{U^{-}}(u)} := \frac{1}{2} u + \left( u \otimes n^{-} \right) \cdot
+ *C_{12}$
  *                  & $\boldsymbol{\hat{u}_{\sigma}^{RHS}} := g_{D}$ \\
  *                  \hline
  *              $\boldsymbol{\hat{u}_{p}^{U^{+}}(u)} := \frac{1}{2} u + D_{12} u \cdot n^{+}$
@@ -1585,199 +1489,158 @@ class DiscreteOseenModelDefaultTraits
  *                ( const IntersectionIteratorType& it, const double time, const
  *                FaceDomainType& x, SigmaRangeType& <b>rhsReturn</b> )
  **/
-template < class DiscreteOseenModelTraitsImp >
-class DiscreteOseenModelDefault : public DiscreteOseenModelInterface< DiscreteOseenModelTraitsImp >
-{
-    private:
+template <class DiscreteOseenModelTraitsImp>
+class DiscreteOseenModelDefault : public DiscreteOseenModelInterface<DiscreteOseenModelTraitsImp> {
+private:
 
-        //! interface class
-		typedef DiscreteOseenModelInterface< DiscreteOseenModelTraitsImp >
-            BaseType;
+  //! interface class
+  typedef DiscreteOseenModelInterface<DiscreteOseenModelTraitsImp> BaseType;
 
-        //! \copydoc Dune::DiscreteOseenModelInterface::IntersectionIteratorType
-        typedef typename BaseType::IntersectionIteratorType
-            IntersectionIteratorType;
+  //! \copydoc Dune::DiscreteOseenModelInterface::IntersectionIteratorType
+  typedef typename BaseType::IntersectionIteratorType IntersectionIteratorType;
 
-    public:
+public:
 
-        //! \copydoc Dune::DiscreteOseenModelInterface::VolumeQuadratureType
-        typedef typename BaseType::VolumeQuadratureType
-            VolumeQuadratureType;
+  //! \copydoc Dune::DiscreteOseenModelInterface::VolumeQuadratureType
+  typedef typename BaseType::VolumeQuadratureType VolumeQuadratureType;
 
-        //! \copydoc Dune::DiscreteOseenModelInterface::FaceQuadratureType
-        typedef typename BaseType::FaceQuadratureType
-            FaceQuadratureType;
+  //! \copydoc Dune::DiscreteOseenModelInterface::FaceQuadratureType
+  typedef typename BaseType::FaceQuadratureType FaceQuadratureType;
 
-        //! \copydoc Dune::DiscreteOseenModelInterface::DiscreteOseenFunctionSpaceWrapperType
-        typedef typename BaseType::DiscreteOseenFunctionSpaceWrapperType
-            DiscreteOseenFunctionSpaceWrapperType;
+  //! \copydoc Dune::DiscreteOseenModelInterface::DiscreteOseenFunctionSpaceWrapperType
+  typedef typename BaseType::DiscreteOseenFunctionSpaceWrapperType DiscreteOseenFunctionSpaceWrapperType;
 
-        //! \copydoc Dune::DiscreteOseenModelInterface::DiscreteOseenFunctionSpaceWrapperType
-        typedef typename BaseType::DiscreteOseenFunctionWrapperType
-            DiscreteOseenFunctionWrapperType;
+  //! \copydoc Dune::DiscreteOseenModelInterface::DiscreteOseenFunctionSpaceWrapperType
+  typedef typename BaseType::DiscreteOseenFunctionWrapperType DiscreteOseenFunctionWrapperType;
 
-        //! \copydoc Dune::DiscreteOseenModelInterface::DiscreteSigmaFunctionType
-        typedef typename BaseType::DiscreteSigmaFunctionType
-            DiscreteSigmaFunctionType;
+  //! \copydoc Dune::DiscreteOseenModelInterface::DiscreteSigmaFunctionType
+  typedef typename BaseType::DiscreteSigmaFunctionType DiscreteSigmaFunctionType;
 
-        //! \copydoc Dune::DiscreteOseenModelInterface::sigmaSpaceOrder
-        static const int sigmaSpaceOrder
-            = BaseType::sigmaSpaceOrder;
-        //! \copydoc Dune::DiscreteOseenModelInterface::velocitySpaceOrder
-        static const int velocitySpaceOrder
-            = BaseType::velocitySpaceOrder;
-        //! \copydoc Dune::DiscreteOseenModelInterface::pressureSpaceOrder
-        static const int pressureSpaceOrder
-            = BaseType::pressureSpaceOrder;
-		//! type of analytical force (usually Dune::Fem::Function)
-		typedef typename BaseType::AnalyticalForceType
-			AnalyticalForceType;
-    private:
+  //! \copydoc Dune::DiscreteOseenModelInterface::sigmaSpaceOrder
+  static const int sigmaSpaceOrder = BaseType::sigmaSpaceOrder;
+  //! \copydoc Dune::DiscreteOseenModelInterface::velocitySpaceOrder
+  static const int velocitySpaceOrder = BaseType::velocitySpaceOrder;
+  //! \copydoc Dune::DiscreteOseenModelInterface::pressureSpaceOrder
+  static const int pressureSpaceOrder = BaseType::pressureSpaceOrder;
+  //! type of analytical force (usually Dune::Fem::Function)
+  typedef typename BaseType::AnalyticalForceType AnalyticalForceType;
 
-        //! codim 0 entity pointer type
-//        typedef typename IntersectionIteratorType::EntityPointer
-//            EntityPointer;
+private:
 
-//        //! codim 0 entity type
-//        typedef typename IntersectionIteratorType::Entity
-//            EntityType;
+  //! codim 0 entity pointer type
+  //        typedef typename IntersectionIteratorType::EntityPointer
+  //            EntityPointer;
 
-//        //! geometry type of codim 0 entity
-//        typedef typename EntityType::Geometry
-//            EntityGeometryType;
+  //        //! codim 0 entity type
+  //        typedef typename IntersectionIteratorType::Entity
+  //            EntityType;
 
-        //! Vector type of the velocity's discrete function space's range
-        typedef typename BaseType::VelocityRangeType
-            VelocityRangeType;
+  //        //! geometry type of codim 0 entity
+  //        typedef typename EntityType::Geometry
+  //            EntityGeometryType;
 
-        //! Matrix type of the sigma's discrete function space's range
-        typedef typename BaseType::SigmaRangeType
-            SigmaRangeType;
+  //! Vector type of the velocity's discrete function space's range
+  typedef typename BaseType::VelocityRangeType VelocityRangeType;
 
-        //! Vector type of the pressure's discrete function space's range
-        typedef typename BaseType::PressureRangeType
-            PressureRangeType;
+  //! Matrix type of the sigma's discrete function space's range
+  typedef typename BaseType::SigmaRangeType SigmaRangeType;
 
+  //! Vector type of the pressure's discrete function space's range
+  typedef typename BaseType::PressureRangeType PressureRangeType;
 
+  //! type of analytical dirichlet data (usually Dune::Fem::Function)
+  typedef typename BaseType::AnalyticalDirichletDataType AnalyticalDirichletDataType;
 
-        //! type of analytical dirichlet data (usually Dune::Fem::Function)
-        typedef typename BaseType::AnalyticalDirichletDataType
-            AnalyticalDirichletDataType;
+public:
 
-    public:
+  //! \copydoc Dune::DiscreteOseenModelInterface::Side
+  typedef enum BaseType::Side Side;
 
-        //! \copydoc Dune::DiscreteOseenModelInterface::Side
-        typedef enum BaseType::Side
-            Side;
+  /**
+   *  \brief  constructor
+   *
+   *  sets the coefficients and analytical data
+   *  \param[in]  C_11
+   *          \f$C_{11}\in R\f$
+   *  \param[in]  C_12
+   *          \f$C_{12}\in R^{d}\f$
+   *  \param[in]  D_11
+   *          \f$D_{11}\in R\f$
+   *  \param[in]  D_12
+   *          \f$D_{12}\in R^{d}\f$
+   *  \param[in]  force
+   *          analytical force
+   *  \param[in]  dirichletData
+   *          analytical dirichlet data
+   *  \param[in]  viscosity
+   *          viscosity of the fluid
+   **/
+  DiscreteOseenModelDefault(const StabilizationCoefficients stab_coeff, const AnalyticalForceType force,
+                            const AnalyticalDirichletDataType dirichletData, const double viscosity = 1.0,
+                            const double alpha = 0.0, const double convection_scaling = 1.0,
+                            const double pressure_gradient_scaling = 1.0)
+    : viscosity_(viscosity)
+    , alpha_(alpha)
+    , convection_scaling_(convection_scaling)
+    , pressure_gradient_scaling_(pressure_gradient_scaling)
+    , stabil_coeff_(stab_coeff)
+    , force_(force)
+    , dirichletData_(dirichletData) {
+    //            if ( !isGeneralized() ) {
+    //                if ( ( alpha_ < 0.0 ) || ( alpha_ > 0.0 ) ) {
+    //                    assert( !"isGeneralized() returns false, but alpha is not zero!" );
+    //                }
+    //            }
+  }
 
-        /**
-         *  \brief  constructor
-         *
-         *  sets the coefficients and analytical data
-         *  \param[in]  C_11
-         *          \f$C_{11}\in R\f$
-         *  \param[in]  C_12
-         *          \f$C_{12}\in R^{d}\f$
-         *  \param[in]  D_11
-         *          \f$D_{11}\in R\f$
-         *  \param[in]  D_12
-         *          \f$D_{12}\in R^{d}\f$
-         *  \param[in]  force
-         *          analytical force
-         *  \param[in]  dirichletData
-         *          analytical dirichlet data
-         *  \param[in]  viscosity
-         *          viscosity of the fluid
-         **/
-        DiscreteOseenModelDefault( const StabilizationCoefficients stab_coeff,
-                                    const AnalyticalForceType force,
-                                    const AnalyticalDirichletDataType dirichletData,
-                                    const double viscosity = 1.0,
-									const double alpha = 0.0,
-								   const double convection_scaling = 1.0,
-								   const double pressure_gradient_scaling = 1.0
-								   )
-            : viscosity_( viscosity ),
-            alpha_( alpha ),
-			convection_scaling_( convection_scaling ),
-            pressure_gradient_scaling_( pressure_gradient_scaling ),
-            stabil_coeff_( stab_coeff ),
-            force_( force ),
-			dirichletData_( dirichletData )
-        {
-//            if ( !isGeneralized() ) {
-//                if ( ( alpha_ < 0.0 ) || ( alpha_ > 0.0 ) ) {
-//                    assert( !"isGeneralized() returns false, but alpha is not zero!" );
-//                }
-//            }
-        }
+  /**
+   *  \brief  destructor
+   *
+   *  does nothing
+   **/
+  virtual ~DiscreteOseenModelDefault() {}
 
-        /**
-         *  \brief  destructor
-         *
-         *  does nothing
-         **/
-	virtual ~DiscreteOseenModelDefault()
-        {}
+  const StabilizationCoefficients& getStabilizationCoefficients() const { return stabil_coeff_; }
 
-        const StabilizationCoefficients& getStabilizationCoefficients() const {
-            return stabil_coeff_;
-        }
+  /**
+   *  \brief  returns true
+   *
+   *  since problem has a \f$\hat{u}_{\sigma}\f$ contribution
+   *  \return true
+   **/
+  bool hasVelocitySigmaFlux() const { return true; }
 
-        /**
-         *  \brief  returns true
-         *
-         *  since problem has a \f$\hat{u}_{\sigma}\f$ contribution
-         *  \return true
-         **/
-        bool hasVelocitySigmaFlux() const
-        {
-            return true;
-        }
+  /**
+   *  \brief  returns true
+   *
+   *  since problem has a \f$\hat{u}_{p}\f$ contribution
+   *  \return true
+   **/
+  bool hasVelocityPressureFlux() const { return true; }
 
-        /**
-         *  \brief  returns true
-         *
-         *  since problem has a \f$\hat{u}_{p}\f$ contribution
-         *  \return true
-         **/
-        bool hasVelocityPressureFlux() const
-        {
-            return true;
-        }
+  /**
+   *  \brief  returns true
+   *
+   *  since problem has a \f$\hat{p}\f$ contribution
+   *  \return true
+   **/
+  bool hasPressureFlux() const { return true; }
 
-        /**
-         *  \brief  returns true
-         *
-         *  since problem has a \f$\hat{p}\f$ contribution
-         *  \return true
-         **/
-        bool hasPressureFlux() const
-        {
-            return true;
-        }
+  /**
+   *  \brief  returns true
+   *
+   *  since problem has a \f$\hat{\sigma}\f$ contribution
+   *  \return true
+   **/
+  bool hasSigmaFlux() const { return true; }
 
-        /**
-         *  \brief  returns true
-         *
-         *  since problem has a \f$\hat{\sigma}\f$ contribution
-         *  \return true
-         **/
-        bool hasSigmaFlux() const
-        {
-            return true;
-        }
-
-        /**
-         *  \brief  returns true
-         *
-         *  since problem has a \f$f\f$ contribution
-         *  \return true
-         **/
-        bool hasForce() const
-        {
-            return true;
-        }
+  /**
+   *  \brief  returns true
+   *
+   *  since problem has a \f$f\f$ contribution
+   *  \return true
+   **/
+  bool hasForce() const { return true; }
 #if 0
         /**
          *  \brief  Implementation of \f$\hat{u}_{\sigma}^{U^{+}}\f$ and
@@ -2594,150 +2457,116 @@ class DiscreteOseenModelDefault : public DiscreteOseenModelInterface< DiscreteOs
             rhsReturn *= C_11;
         }
 #endif
-        /**
-         *  \brief  Implementation of \f$f\f$.
-         *
-         *          Evaluates the analytical force given by the constructor
-         *
-         *  \tparam DomainType
-         *          domain type in entity (codim 0)
-         *  \param[in]  time
-         *          global time
-         *  \param[in]  x
-         *          point to evaluate at (in world coordinates)
-         *  \param[out]  forceReturn
-         *          value of \f$f\f$ in \f$x\f$
-         **/
-        template < class DomainType >
-		void force( const double /*time*/,
-                    const DomainType& x,
-                    VelocityRangeType& forceReturn ) const
-        {
-            force_.evaluate( x, forceReturn );
-        }
+  /**
+   *  \brief  Implementation of \f$f\f$.
+   *
+   *          Evaluates the analytical force given by the constructor
+   *
+   *  \tparam DomainType
+   *          domain type in entity (codim 0)
+   *  \param[in]  time
+   *          global time
+   *  \param[in]  x
+   *          point to evaluate at (in world coordinates)
+   *  \param[out]  forceReturn
+   *          value of \f$f\f$ in \f$x\f$
+   **/
+  template <class DomainType>
+  void force(const double /*time*/, const DomainType& x, VelocityRangeType& forceReturn) const {
+    force_.evaluate(x, forceReturn);
+  }
 
-        template < class IntersectionType, class DomainType >
-        void dirichletData( const IntersectionType& intIt,
-							const double /*time*/,
-                            const DomainType& x,
-                            VelocityRangeType& dirichletDataReturn ) const
-        {
-            assert( ( !intIt.neighbor() && intIt.boundary() ) || !"this intersection does not lie on the boundary" );
-			dirichletData_.evaluate( x, dirichletDataReturn, intIt );
-        }
+  template <class IntersectionType, class DomainType>
+  void dirichletData(const IntersectionType& intIt, const double /*time*/, const DomainType& x,
+                     VelocityRangeType& dirichletDataReturn) const {
+    assert((!intIt.neighbor() && intIt.boundary()) || !"this intersection does not lie on the boundary");
+    dirichletData_.evaluate(x, dirichletDataReturn, intIt);
+  }
 
-        /**
-         *  \brief  Returns the viscosity \f$\mu\f$ of the fluid.
-         *  \return \f$\mu\f$
-         **/
-        double viscosity() const
-        {
-            return viscosity_;
-        }
+  /**
+   *  \brief  Returns the viscosity \f$\mu\f$ of the fluid.
+   *  \return \f$\mu\f$
+   **/
+  double viscosity() const { return viscosity_; }
 
-        /**
-         *  \brief  constant for generalized stokes
-         *
-         *  \todo   doc
-         **/
-        double alpha() const
-        {
-            return alpha_;
-        }
+  /**
+   *  \brief  constant for generalized stokes
+   *
+   *  \todo   doc
+   **/
+  double alpha() const { return alpha_; }
 
-        bool isGeneralized() const
-        {
-            return false;
-        }
+  bool isGeneralized() const { return false; }
 
-		//! ZAF
-		double convection_scaling() const
-        {
-            return convection_scaling_;
-        }
+  //! ZAF
+  double convection_scaling() const { return convection_scaling_; }
 
-		//! ZAF
-		double pressure_gradient_scaling() const
-        {
-            return pressure_gradient_scaling_;
-        }
+  //! ZAF
+  double pressure_gradient_scaling() const { return pressure_gradient_scaling_; }
 
-		const AnalyticalForceType& forceF() const
-		{
-			return force_;
-		}
+  const AnalyticalForceType& forceF() const { return force_; }
 
-    private:
+private:
 
-        const double viscosity_;
-        const double alpha_;
-		const double convection_scaling_;
-		const double pressure_gradient_scaling_;
-        StabilizationCoefficients stabil_coeff_;
-        const AnalyticalForceType force_;
-        const AnalyticalDirichletDataType dirichletData_;
+  const double viscosity_;
+  const double alpha_;
+  const double convection_scaling_;
+  const double pressure_gradient_scaling_;
+  StabilizationCoefficients stabil_coeff_;
+  const AnalyticalForceType force_;
+  const AnalyticalDirichletDataType dirichletData_;
 
-        /**
-         *  \brief  dyadic product
-         *
-         *          Implements \f$\left(arg_{1} \otimes arg_{2}\right)_{i,j}:={arg_{1}}_{i} {arg_{2}}_{j}\f$
-         **/
-        SigmaRangeType dyadicProduct(   const VelocityRangeType& arg1,
-                                        const VelocityRangeType& arg2 ) const
-        {
-            SigmaRangeType ret( 0.0 );
-            typedef typename SigmaRangeType::RowIterator
-                MatrixRowIteratorType;
-            typedef typename VelocityRangeType::ConstIterator
-                ConstVectorIteratorType;
-            typedef typename VelocityRangeType::Iterator
-                VectorIteratorType;
-            MatrixRowIteratorType rItEnd = ret.end();
-            ConstVectorIteratorType arg1It = arg1.begin();
-            for ( MatrixRowIteratorType rIt = ret.begin(); rIt != rItEnd; ++rIt ) {
-                ConstVectorIteratorType arg2It = arg2.begin();
-                VectorIteratorType vItEnd = rIt->end();
-                for (   VectorIteratorType vIt = rIt->begin();
-                        vIt != vItEnd;
-                        ++vIt ) {
-                    *vIt = *arg1It * *arg2It;
-                    ++arg2It;
-                }
-                ++arg1It;
-            }
-        }
+  /**
+   *  \brief  dyadic product
+   *
+   *          Implements \f$\left(arg_{1} \otimes arg_{2}\right)_{i,j}:={arg_{1}}_{i} {arg_{2}}_{j}\f$
+   **/
+  SigmaRangeType dyadicProduct(const VelocityRangeType& arg1, const VelocityRangeType& arg2) const {
+    SigmaRangeType ret(0.0);
+    typedef typename SigmaRangeType::RowIterator MatrixRowIteratorType;
+    typedef typename VelocityRangeType::ConstIterator ConstVectorIteratorType;
+    typedef typename VelocityRangeType::Iterator VectorIteratorType;
+    MatrixRowIteratorType rItEnd = ret.end();
+    ConstVectorIteratorType arg1It = arg1.begin();
+    for (MatrixRowIteratorType rIt = ret.begin(); rIt != rItEnd; ++rIt) {
+      ConstVectorIteratorType arg2It = arg2.begin();
+      VectorIteratorType vItEnd = rIt->end();
+      for (VectorIteratorType vIt = rIt->begin(); vIt != vItEnd; ++vIt) {
+        *vIt = *arg1It * *arg2It;
+        ++arg2It;
+      }
+      ++arg1It;
+    }
+  }
 
-        //! avoid code duplication by doing calculations for C_1X and D_1X here
-        template < class LocalPoint >
-        double getStabScalar( const LocalPoint& /*x*/ , const IntersectionIteratorType& it, const std::string coeffName ) const
-        {
-            const StabilizationCoefficients::PowerType  power   = stabil_coeff_.Power   ( coeffName );
-            const StabilizationCoefficients::FactorType factor  = stabil_coeff_.Factor  ( coeffName );
-            if ( power == StabilizationCoefficients::invalid_power ) {
-                return 0.0;
-            }
-//                return std::pow( it.geometry().integrationElement( x ), param );
-			return factor * std::pow( getLenghtOfIntersection( *it ), power );
-        }
-
-
+  //! avoid code duplication by doing calculations for C_1X and D_1X here
+  template <class LocalPoint>
+  double getStabScalar(const LocalPoint& /*x*/, const IntersectionIteratorType& it, const std::string coeffName) const {
+    const StabilizationCoefficients::PowerType power = stabil_coeff_.Power(coeffName);
+    const StabilizationCoefficients::FactorType factor = stabil_coeff_.Factor(coeffName);
+    if (power == StabilizationCoefficients::invalid_power) {
+      return 0.0;
+    }
+    //                return std::pow( it.geometry().integrationElement( x ), param );
+    return factor * std::pow(getLenghtOfIntersection(*it), power);
+  }
 };
 
 } // end of namespace Dune
 
 #endif // end of discretestokesmodelinterface.hh
 
-/** Copyright (c) 2012, Felix Albrecht, Rene Milk      
+/** Copyright (c) 2012, Felix Albrecht, Rene Milk
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
- * 
+ * modification, are permitted provided that the following conditions are met:
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -2749,9 +2578,8 @@ class DiscreteOseenModelDefault : public DiscreteOseenModelInterface< DiscreteOs
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are those
- * of the authors and should not be interpreted as representing official policies, 
+ * of the authors and should not be interpreted as representing official policies,
  * either expressed or implied, of the FreeBSD Project.
 **/
-
